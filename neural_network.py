@@ -10,17 +10,21 @@ def predict(model, x):
     return
 
 def build_model(X,y,nn_hdim, num_passes=20000,printloss=False):
-    sampleSize = np.size(X, 1)
+    featureSize = np.size(X, 1)
+    sampleSize = np.size(y)
+    print(len(X))
+    print(len(y))
     print(sampleSize)
+    print(featureSize)
     step = 0.01
-    b1 = np.zeros((1,nn_hdim))
-    b2 = np.zeros((1,nn_hdim))
+    b1 = np.ones((1,nn_hdim))
+    b2 = np.ones((1,nn_hdim))
     nn = None
-    W1 = np.full((sampleSize, nn_hdim), 100)
-    W2 = np.full((nn_hdim, sampleSize), 100)
+    W1 = np.full((featureSize, nn_hdim), 1)
+    W2 = np.full((nn_hdim, featureSize), 1)
 
 
-    for i in range(0, num_passes):
+    for i in range(num_passes):
         a = X.dot(W1) + b1
         h = np.tanh(a)
         z = h.dot(W2) + b2
@@ -30,9 +34,12 @@ def build_model(X,y,nn_hdim, num_passes=20000,printloss=False):
 
         back2 = y1
         a1 = 1 - ((np.tanh(a))**2)
-        for k in range(sampleSize):
-            for j in range(nn_hdim):
-                back2[k][j] = back2[k][j] - y[j]
+
+        back2[range(len(X)), y] -= 1
+        #for k in range(featureSize):
+            #for j in y:
+                #print(j)
+                #back2[k][j] = back2[k][j] - j
 
         gW2 = (h.T).dot(back2)
         gb2 = np.sum(back2, axis=0, keepdims=True)
@@ -43,8 +50,6 @@ def build_model(X,y,nn_hdim, num_passes=20000,printloss=False):
         if(i % 5000 == 0):
             print(W1, W2, gW1, gW2)
 
-        #gW2 += 0.01 * W2
-        #gW1 += 0.01 * W1
 
         W1 = W1 - (step * gW1)
         b1 = b1 - (step * gb1)
