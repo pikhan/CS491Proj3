@@ -9,13 +9,16 @@ def calculate_loss(model, X, y):
 def predict(model, x):
     return
 
+def y_sum(y_hat,y, k, j):
+    sum = 0
+    for x in range(k):
+        for g in range(j):
+            sum += y[x][g] * math.log(y_hat[x,g], 2)
+    return sum
+
 def build_model(X,y,nn_hdim, num_passes=20000,printloss=False):
     featureSize = np.size(X, 1)
     sampleSize = np.size(y)
-    print(len(X))
-    print(len(y))
-    print(sampleSize)
-    print(featureSize)
     step = 0.01
     b1 = np.ones((1,nn_hdim))
     b2 = np.ones((1,nn_hdim))
@@ -34,12 +37,19 @@ def build_model(X,y,nn_hdim, num_passes=20000,printloss=False):
 
         back2 = y1
         a1 = 1 - ((np.tanh(a))**2)
+        #test = np.sum(y for n in y[,:]
+        #back2[range(len(X)), y] -= 1
+        for k in range(sampleSize):
+            for j in range(nn_hdim):
+                #if(i == 1):
+                #    print(back2[k][j])
+                #    print(j)
+            #        print(featureSize)
+                back2[k][j] = (-1/featureSize) * y_sum(back2, y, k, j)
 
-        back2[range(len(X)), y] -= 1
-        #for k in range(featureSize):
-            #for j in y:
-                #print(j)
-                #back2[k][j] = back2[k][j] - j
+                if(i == 1):
+                    sum = y_sum
+                    #print(back2[k][j])
 
         gW2 = (h.T).dot(back2)
         gb2 = np.sum(back2, axis=0, keepdims=True)
@@ -47,8 +57,8 @@ def build_model(X,y,nn_hdim, num_passes=20000,printloss=False):
         back1 = a1 * back2.dot(W2.T)
         gW1 = np.dot(X.T, back1)
         gb1 = np.sum(back1, axis=0)
-        if(i % 5000 == 0):
-            print(W1, W2, gW1, gW2)
+        #if(i % 5000 == 0):
+            #print(W1, W2, gW1, gW2)
 
 
         W1 = W1 - (step * gW1)
