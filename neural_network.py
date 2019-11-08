@@ -1,13 +1,33 @@
-
-from matplotlib import pyplot as plt
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+import numpy as np
+from sklearn.datasets import make_moons
+
 def calculate_loss(model, X, y):
-    return
+    # First, to compute our predictions y_hat I will compute a,h,and z as defined in our project description
+    # Note, these are not singular values as we are evaluating this element wise for each data point in X
+    a = np.dot(X,model['W1'])+model['b1']
+    h = np.tanh(a)
+    z = np.dot(h,model['W2'])+model['b2']
+    y_hat = softmax(z)
+    #Now I want to multiply the log of my predictions by the actual values y
+    product = np.multiply(np.log(y_hat),y)
+    #Now I sum all the elements together
+    sum = np.sum(product)
+    #Finally, I multiply by -1/N
+    return (-1/(len(X)))*sum
 
 def predict(model, x):
-    return
+    #We do the same thing as above to compute y_hat, but now x is a single sample
+    a = np.dot(x,model['W1']) + model['b1']
+    h = np.tanh(a)
+    z = np.dot(h,model['W2']) + model['b2']
+    y_hat = softmax(z)
+    print("y_hat:", y_hat)
+    return y_hat
 
 def y_sum(y_hat,y, k, j):
     sum = 0
@@ -101,11 +121,25 @@ def softmax(z):
     return y
 
 def plot_decision_boundary(pred_func, X, y):
-    x_min, x_max = X[:,0].min() - .5, X[:,0].max()+.5
-    y_min, y_max = X[:,1].min() - .5, X[:,1].max()+.5
-    h=0.01
-    xx,yy=np.meshgrid(np.arange(x_min,x_max,h), np.arange(y_min,y_max,h))
-    Z=pred_function(np.c_[xx.ravel(),yy.ravel()])
-    Z=Z.reshape(xx.shape)
-    plt.contour(xx,yy,Z,cmap=plt.cm.Spectral)
-    plt.scatter(X[:,0],X[:,1], c=y, cmap=plt.cm.Spectral)
+    x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
+    y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
+    h = 0.01
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    Z = pred_func(np.c_[xx.ravel(), yy.ravel()]) #error here used to be predict but this was not passed
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral)
+    plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Spectral)
+
+
+np.random.seed(0)
+X, y = make_moons ( 200 , noise =0.20)
+plt.scatter (X [ : , 0 ] , X [ : , 1 ] , s =40 , c=y , cmap=plt.cm.Spectral )
+
+plt.figure( figsize =(16 , 32 ) )
+hidden_layer_dimensions = [1 , 2 , 3 , 4]
+for i , nn_hdim in enumerate ( hidden_layer_dimensions ) :
+    plt.subplot( 5 , 2 , i +1)
+    plt.title( 'HiddenLayerSize%d' % nn_hdim )
+    model = build_model(X, y , nn_hdim )
+    plot_decision_boundary(lambda x : predict( model , x ) , X, y )
+plt.show( )

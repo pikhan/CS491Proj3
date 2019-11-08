@@ -13,5 +13,5 @@ for i, nn_hdim in enumerate(hidden_layer_dimensions):
     plt.subplot(5,2,i+1)
     plt.title('HiddenLayerSize%d' % nn_hdim)
     model = nn.build_model(X,y,nn_hdim)
-    #nn.plot_decision_boundary(lambda x: predict(model, x), X, y)
-#plt.show()
+    nn.plot_decision_boundary(lambda x: predict(model, x), X, y)
+plt.show()
